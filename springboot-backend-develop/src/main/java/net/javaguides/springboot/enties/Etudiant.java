@@ -5,12 +5,14 @@ import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.String.format;
+
 
 @Entity
 public class Etudiant {
     @Id
     @Column(
-            name = "etudiant_id"
+            name = "N°"
     )
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
@@ -23,42 +25,35 @@ public class Etudiant {
     )
     private String matricule;
     @Column(
-            name = "last_name",
-            length = 30,
+            name = "Noms_&_Prenoms",
+            length = 60,
             nullable = false
     )
-    private String lastName;
-    @Column(
-            name = "first_name",
-            length = 30,
-            nullable = true
-    )
-    private String firstName;
+    private String noms_prenoms;
     @Column(
             length = 1,
             nullable = false
     )
-    private String sex;
+    private String sexe;
     @Column(
             nullable = false
     )
-    private Date date_of_birth;
+    private Date date_de_naissance;
     @Column(
-            length = 20,
             nullable = false
     )
-    private String place_of_birth;
+    private String lieu_de_naissance;
     @Column(
             length = 15,
             nullable = false
     )
-    private String academic_year;
-    private int level_of_study;
+    private String annee_academique;
+    private int niveau_etude;
     @Column(
             length = 130,
             nullable = false
     )
-    private String faculty;
+    private String filiere;
     @Column(
             length = 130,
             nullable = false
@@ -76,7 +71,7 @@ public class Etudiant {
     }
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -84,79 +79,71 @@ public class Etudiant {
     }
 
     public String getMatricule() {
-        return this.matricule;
+        return matricule;
     }
 
     public void setMatricule(String matricule) {
         this.matricule = matricule;
     }
 
-    public String getLastName() {
-        return this.lastName;
+    public String getNoms_prenoms() {
+        return noms_prenoms;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setNoms_prenoms(String noms_prenoms) {
+        this.noms_prenoms = noms_prenoms;
     }
 
-    public String getFirstName() {
-        return this.firstName;
+    public String getSexe() {
+        return sexe;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setSexe(String sexe) {
+        this.sexe = sexe;
     }
 
-    public String getSex() {
-        return this.sex;
+    public Date getDate_de_naissance() {
+        return date_de_naissance;
     }
 
-    public void setSex(String sex) {
-        this.sex = sex;
+    public void setDate_de_naissance(Date date_de_naissance) {
+        this.date_de_naissance = date_de_naissance;
     }
 
-    public Date getDate_of_birth() {
-        return this.date_of_birth;
+    public String getLieu_de_naissance() {
+        return lieu_de_naissance;
     }
 
-    public void setDate_of_birth(Date date_of_birth) {
-        this.date_of_birth = date_of_birth;
+    public void setLieu_de_naissance(String lieu_de_naissance) {
+        this.lieu_de_naissance = lieu_de_naissance;
     }
 
-    public String getPlace_of_birth() {
-        return this.place_of_birth;
+    public String getAnnee_academique() {
+        return annee_academique;
     }
 
-    public void setPlace_of_birth(String place_of_birth) {
-        this.place_of_birth = place_of_birth;
+    public void setAnnee_academique(String annee_academique) {
+        this.annee_academique = annee_academique;
     }
 
-    public String getAcademic_year() {
-        return this.academic_year;
+    public int getNiveau_etude() {
+        return niveau_etude;
     }
 
-    public void setAcademic_year(String academic_year) {
-        this.academic_year = academic_year;
+    public void setNiveau_etude(int niveau_etude) {
+        this.niveau_etude = niveau_etude;
     }
 
-    public int getLevel_of_study() {
-        return this.level_of_study;
+    public String getFiliere() {
+        return filiere;
     }
 
-    public void setLevel_of_study(int level_of_study) {
-        this.level_of_study = level_of_study;
-    }
-
-    public String getFaculty() {
-        return this.faculty;
-    }
-
-    public void setFaculty(String faculty) {
-        this.faculty = faculty;
+    public void setFiliere(String filiere) {
+        this.filiere = filiere;
     }
 
     public String getAxe() {
-        return this.axe;
+        return axe;
     }
 
     public void setAxe(String axe) {
@@ -164,15 +151,16 @@ public class Etudiant {
     }
 
     public List<Invoice> getInvoices() {
-        return this.invoices;
+        return invoices;
     }
 
     public void setInvoices(List<Invoice> invoices) {
         this.invoices = invoices;
     }
 
+    @Override
     public String toString() {
-        return String.format("Etudiant{id=%d, matricule='%s', lastName='%s', firstName='%s', sex='%s', date_of_birth='%s', place_of_birth='%s', academic_year='%s', level_of_study=%d, faculty='%s', axe='%s', invoices=%s}", this.id, this.matricule, this.lastName, this.firstName, this.sex, this.date_of_birth, this.place_of_birth, this.academic_year, this.level_of_study, this.faculty, this.axe, this.invoices);
+        return String.format("Etudiant{id=%d, matricule='%s', noms_prenoms='%s', sexe='%s', date_de_naissance=%s, lieu_de_naissance='%s', annee_academique='%s', niveau_etude=%d, filiere='%s', axe='%s', invoices=%s}",id, matricule, noms_prenoms, sexe, date_de_naissance, lieu_de_naissance, annee_academique, niveau_etude, filiere, axe, invoices);
     }
 }
 

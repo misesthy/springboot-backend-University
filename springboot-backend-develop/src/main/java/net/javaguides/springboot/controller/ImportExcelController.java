@@ -2,9 +2,12 @@ package net.javaguides.springboot.controller;
 
 import net.javaguides.springboot.enties.Etudiant;
 import net.javaguides.springboot.enties.Product;
+import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.repository.EtudiantRepository;
 import net.javaguides.springboot.repository.ProductRepository;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -14,11 +17,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class ImportExcelController {
@@ -27,7 +31,49 @@ public class ImportExcelController {
     private EtudiantRepository etudiantRepository;
 
 
-    @RequestMapping(value = "*", method = RequestMethod.POST)
+//    public ResponseEntity<List<Etudiant>> importExcelFile(@RequestParam("file") MultipartFile files) throws IOException {
+//        HttpStatus status = HttpStatus.OK;
+//        List<Etudiant> etudiantList = new ArrayList<>();
+//
+//        XSSFWorkbook workbook = null;
+//        try {
+//            workbook = new XSSFWorkbook(files.getInputStream());
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        XSSFSheet worksheet = workbook.getSheetAt(0);
+//
+//        for (int index = 0; index < worksheet.getPhysicalNumberOfRows(); index++) {
+//            if (index > 0) {
+//                Etudiant etudiant = new Etudiant();
+//
+//                XSSFRow row = worksheet.getRow(index);
+//                Long id = (long) row.getCell(0).getColumnIndex();
+//
+//                etudiant.setId((long) Integer.parseInt(id.toString()));
+//                etudiant.setMatricule(row.getCell(1).getStringCellValue());
+//                etudiant.setNoms_prenoms(row.getCell(2).getStringCellValue());
+//                etudiant.setSexe(row.getCell(4).getRawValue());
+//                etudiant.setDate_de_naissance(row.getCell(5).getDateCellValue());
+//                etudiant.setLieu_de_naissance(row.getCell(6).getStringCellValue());
+//                etudiant.setAnnee_academique(String.valueOf(row.getCell(7).getNumericCellValue()));
+//                etudiant.setNiveau_etude((int) row.getCell(8).getNumericCellValue());
+//                etudiant.setFiliere(row.getCell(9).getStringCellValue());
+//                etudiant.setAxe(row.getCell(10).getStringCellValue());
+//
+//
+//                etudiantList.add(etudiant);
+//
+//
+//            }
+//        }
+//
+//        List<Etudiant> response = etudiantRepository.saveAll(etudiantList);
+//
+//        return new ResponseEntity<>(response, status);
+//    }
+
+    @RequestMapping(value = "/file", method = RequestMethod.POST)
     public ResponseEntity<List<Product>> importExcelFile(@RequestParam("file") MultipartFile files) throws IOException {
         HttpStatus status = HttpStatus.OK;
         List<Product> productList = new ArrayList<>();
@@ -62,51 +108,53 @@ public class ImportExcelController {
 
         return new ResponseEntity<>(response, status);
     }
+    @RequestMapping(value = "import-excel", method = RequestMethod.POST)
+    public ResponseEntity<List<Etudiant>> ImportExcelController(@RequestParam(value = "file") MultipartFile files) throws IOException {
 
-    @RequestMapping(value = "/import-excel", method = RequestMethod.POST)
-    public ResponseEntity<List<Etudiant>> importExcelfile(@RequestParam("file") MultipartFile files) throws IOException {
         HttpStatus status = HttpStatus.OK;
         List<Etudiant> etudiantList = new ArrayList<>();
 
-        XSSFWorkbook workbook = null;
-        try {
-            workbook = new XSSFWorkbook(files.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        XSSFSheet worksheet = workbook.getSheetAt(4);
+        Workbook workbook = new XSSFWorkbook(files.getInputStream());
 
-        for (int index = 4; index < worksheet.getPhysicalNumberOfRows(); index++) {
-            if (index > 4) {
-                Etudiant etudiant = new Etudiant();
+        Sheet sheet = workbook.getSheetAt(0);
 
-                XSSFRow row = worksheet.getRow(index);
-                Long id = (long) row.getCell(4).getColumnIndex();
+        Map<Integer, List<String>> data = new HashMap<>();
+        int i = 0;
+        for (
+                Row row : sheet) {
+            data.put(i, new ArrayList<String>());
+            for (Cell cell : row) {
+                switch (cell.getCellType()) {
+                    case STRING:
+                        data.get(i).add(cell.getRichStringCellValue().getString());
+                        break;
+                    case NUMERIC:
+                        if (DateUtil.isCellDateFormatted(cell)) {
+                            data.get(i).add(cell.getDateCellValue() + "");
+                        } else {
+                            data.get(i).add(cell.getNumericCellValue() + "");
+                        }
+                        break;
+                    case BOOLEAN:
+                        data.get(i).add(cell.getBooleanCellValue() + "");
+                        break;
+                    case FORMULA:
+                        data.get(i).add(cell.getCellFormula() + "");
+                        break;
+                    default:
+                        data.get(i).add(" ");
 
-                etudiant.setId((long) Integer.parseInt(id.toString()));
-                etudiant.setMatricule(row.getCell(5).getStringCellValue());
-                etudiant.setLastName(row.getCell(6).getStringCellValue());
-                etudiant.setFirstName(row.getCell(7).getStringCellValue());
-                etudiant.setSex(row.getCell(8).getRawValue());
-                etudiant.setDate_of_birth(row.getCell(9).getDateCellValue());
-                etudiant.setPlace_of_birth(row.getCell(10).getStringCellValue());
-                etudiant.setAcademic_year(String.valueOf(row.getCell(11).getNumericCellValue()));
-                etudiant.setLevel_of_study((int) row.getCell(12).getNumericCellValue());
-                etudiant.setFaculty(row.getCell(13).getStringCellValue());
-                etudiant.setAxe(row.getCell(14).getStringCellValue());
-
-
-                etudiantList.add(etudiant);
-
-
+                }
             }
+            i++;
         }
 
         List<Etudiant> response = etudiantRepository.saveAll(etudiantList);
 
         return new ResponseEntity<>(response, status);
     }
+ }
 
-}
+
 
 
