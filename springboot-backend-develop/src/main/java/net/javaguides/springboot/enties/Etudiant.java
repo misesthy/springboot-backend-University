@@ -12,7 +12,7 @@ import static java.lang.String.format;
 public class Etudiant {
     @Id
     @Column(
-            name = "N°"
+            name = "id"
     )
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
@@ -25,7 +25,7 @@ public class Etudiant {
     )
     private String matricule;
     @Column(
-            name = "Noms_&_Prenoms",
+            name = "noms_prenoms",
             length = 60,
             nullable = false
     )

@@ -48,21 +48,23 @@ public class ImportExcelController {
                 Etudiant etudiant = new Etudiant();
 
                 XSSFRow row = worksheet.getRow(index);
-                Long id = (long) row.getCell(0).getColumnIndex();
+//                Long id = (long) row.getCell(0).getColumnIndex();
 
-                etudiant.setId((long) Integer.parseInt(id.toString()));
-                etudiant.setMatricule(row.getCell(1).getStringCellValue());
-                etudiant.setNoms_prenoms(row.getCell(2).getStringCellValue());
-                etudiant.setSexe(row.getCell(4).getRawValue());
-                etudiant.setDate_de_naissance(row.getCell(5).getDateCellValue());
-                etudiant.setLieu_de_naissance(row.getCell(6).getStringCellValue());
-                etudiant.setAnnee_academique(String.valueOf(row.getCell(7).getNumericCellValue()));
-                etudiant.setNiveau_etude((int) row.getCell(8).getNumericCellValue());
-                etudiant.setFiliere(row.getCell(9).getStringCellValue());
-                etudiant.setAxe(row.getCell(10).getStringCellValue());
+                String matricule = row.getCell(1).getStringCellValue();
+                System.out.println(matricule);
+
+//                etudiant.setMatricule(row.getCell(1).getStringCellValue());
+//                etudiant.setNoms_prenoms(row.getCell(2).getStringCellValue());
+//                etudiant.setSexe(row.getCell(4).getRawValue());
+//                etudiant.setDate_de_naissance(row.getCell(5).getDateCellValue());
+//                etudiant.setLieu_de_naissance(row.getCell(6).getStringCellValue());
+//                etudiant.setAnnee_academique(String.valueOf(row.getCell(7).getNumericCellValue()));
+//                etudiant.setNiveau_etude((int) row.getCell(8).getNumericCellValue());
+//                etudiant.setFiliere(row.getCell(9).getStringCellValue());
+//                etudiant.setAxe(row.getCell(10).getStringCellValue());
 
 
-                etudiantList.add(etudiant);
+//                etudiantList.add(etudiant);
 
 
             }
