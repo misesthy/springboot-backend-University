@@ -10,6 +10,7 @@ import static java.lang.String.format;
 
 @Entity
 public class Etudiant {
+
     @Id
     @Column(
             name = "id"
@@ -18,54 +19,57 @@ public class Etudiant {
             strategy = GenerationType.IDENTITY
     )
     private Long id;
+
     @Column(
             name = "etudiant_matricule",
             length = 15,
-            nullable = false
+            nullable = false,
+            unique = true
     )
     private String matricule;
+
     @Column(
             name = "noms_prenoms",
             length = 60,
             nullable = false
     )
     private String noms_prenoms;
+
     @Column(
-            length = 1,
-            nullable = false
+            length = 1
     )
     private String sexe;
-    @Column(
-            nullable = false
-    )
+
+
     private Date date_de_naissance;
-    @Column(
-            nullable = false
-    )
+
+
     private String lieu_de_naissance;
+
     @Column(
             length = 15,
             nullable = false
     )
     private String annee_academique;
+
     private int niveau_etude;
+
     @Column(
-            length = 130,
-            nullable = false
+            length = 130
     )
     private String filiere;
+
     @Column(
             length = 130,
             nullable = false
     )
     private String axe;
-    @ManyToMany(
-            cascade = {CascadeType.ALL}
-    )
-    @JoinTable(
-            name = "Etudiant_Semestre"
-    )
-    private List<Invoice> invoices;
+
+    private Double moyenne;
+
+    private Double credit_acquis;
+
+    private String decision;
 
     public Etudiant() {
     }
@@ -150,17 +154,29 @@ public class Etudiant {
         this.axe = axe;
     }
 
-    public List<Invoice> getInvoices() {
-        return invoices;
+    public Double getMoyenne() {
+        return this.moyenne;
     }
 
-    public void setInvoices(List<Invoice> invoices) {
-        this.invoices = invoices;
+    public void setMoyenne(Double moyenne) {
+        this.moyenne = moyenne;
     }
 
-    @Override
-    public String toString() {
-        return String.format("Etudiant{id=%d, matricule='%s', noms_prenoms='%s', sexe='%s', date_de_naissance=%s, lieu_de_naissance='%s', annee_academique='%s', niveau_etude=%d, filiere='%s', axe='%s', invoices=%s}",id, matricule, noms_prenoms, sexe, date_de_naissance, lieu_de_naissance, annee_academique, niveau_etude, filiere, axe, invoices);
+    public Double getCredit_acquis() {
+        return this.credit_acquis;
     }
+
+    public void setCredit_acquis(Double credit_acquis) {
+        this.credit_acquis = credit_acquis;
+    }
+
+    public String getDecision() {
+        return this.decision;
+    }
+
+    public void setDecision(String decision) {
+        this.decision = decision;
+    }
+
 }
 
