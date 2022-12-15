@@ -111,7 +111,18 @@ public class ImportExcelController {
             etudiantList = etudiantRepository.findAll(Sort.by(directionOfSort, orderBy));
         }
 
+        return new ResponseEntity<>(etudiantList, status);
+    }
 
+    @RequestMapping(value = "api/etudiants", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<List<Etudiant>> getInEtudiant(@RequestParam("orderBy") String orderBy, @RequestParam("credit_acquis") Integer credit_acquis) throws IOException {
+        HttpStatus status = HttpStatus.OK;
+        List<Etudiant> etudiantList = new ArrayList<>();
+
+        if(credit_acquis == 30 ){
+            etudiantList =   etudiantRepository.findAll();
+        }
 
         return new ResponseEntity<>(etudiantList, status);
     }
