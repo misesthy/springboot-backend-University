@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface EtudiantRepository extends JpaRepository<Etudiant, Integer> {
     List<Etudiant> findMoyenneOrderByDecision(String value);
+
+
+    
 }

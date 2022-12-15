@@ -29,11 +29,11 @@ public class Etudiant {
     private String matricule;
 
     @Column(
-            name = "noms_prenoms",
+            name = "noms",
             length = 60,
             nullable = false
     )
-    private String noms_prenoms;
+    private String noms;
 
     @Column(
             length = 1
@@ -90,12 +90,12 @@ public class Etudiant {
         this.matricule = matricule;
     }
 
-    public String getNoms_prenoms() {
-        return noms_prenoms;
+    public String getNoms() {
+        return noms;
     }
 
-    public void setNoms_prenoms(String noms_prenoms) {
-        this.noms_prenoms = noms_prenoms;
+    public void setNoms(String noms) {
+        this.noms = noms;
     }
 
     public String getSexe() {
