@@ -1,6 +1,8 @@
 package net.javaguides.springboot.controller;
 
+import net.javaguides.springboot.enties.CreditFieldresponse;
 import net.javaguides.springboot.enties.Etudiant;
+import net.javaguides.springboot.enties.Etudiantresponse;
 import net.javaguides.springboot.repository.EtudiantRepository;
 
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -42,7 +44,7 @@ public class ImportExcelController {
         String annee = worksheet.getRow(5).getCell(8).getStringCellValue();
         System.out.println(annee);
 
-        Integer niveau_etude = (int) worksheet.getRow(3).getCell(7).getRowIndex();
+        Integer niveau_etude = (int) worksheet.getRow(3).getCell(8).getNumericCellValue();
         System.out.println(niveau_etude);
 
         String axe = worksheet.getRow(7).getCell(7).getStringCellValue();
@@ -114,15 +116,29 @@ public class ImportExcelController {
         return new ResponseEntity<>(etudiantList, status);
     }
 
-    @RequestMapping(value = "api/etudiants", method = RequestMethod.GET)
+    @RequestMapping(value = "api/etudiant_soutenir", method = RequestMethod.GET)
     @CrossOrigin("*")
-    public ResponseEntity<List<Etudiant>> getInEtudiant(@RequestParam("orderBy") String orderBy, @RequestParam("credit_acquis") Integer credit_acquis) throws IOException {
+    public ResponseEntity<List<Etudiant>> getInEtudiant(@RequestParam("credit_acquis") Integer credit_acquis, @RequestParam("annee_etude") String annee_etude, @RequestParam("niveau_etude") Integer niveau_etude) throws IOException {
+//    public ResponseEntity<List<Etudiant>> getInEtudiant(@RequestParam("orderBy") String orderBy, @RequestParam("credit_acquis") Integer credit_acquis) throws IOException {
         HttpStatus status = HttpStatus.OK;
         List<Etudiant> etudiantList = new ArrayList<>();
 
         if(credit_acquis == 30 ){
-            etudiantList =   etudiantRepository.findAll();
+            etudiantList =   etudiantRepository.findByCredit(credit_acquis, annee_etude, niveau_etude);
         }
+
+        return new ResponseEntity<>(etudiantList, status);
+    }
+
+    @RequestMapping(value = "api/etudiant_Niveau_Superieur", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<List<Etudiant>> getSupEtudiant(@RequestParam("credit_acquis") Integer credit_acquis) throws IOException {
+
+        HttpStatus status = HttpStatus.OK;
+        List<Etudiant> etudiantList = new ArrayList<>();
+
+        etudiantList = etudiantRepository.findAll();
+
 
         return new ResponseEntity<>(etudiantList, status);
     }
@@ -142,34 +158,153 @@ public class ImportExcelController {
 
     }
 
-//    private static final String DIRECTORY = "C:/PDF";
-//    private static final String DEFAULT_FILE_NAME = "java-tutorial.pdf";
-//
-//    @Autowired
-//    private ServletContext servletContext;
+    @RequestMapping(value = "api/etudiantsByLevel", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<List<Etudiantresponse>> getInEtudiantByLevel() throws IOException {
+        HttpStatus status = HttpStatus.OK;
+        List<Etudiant> etudiantList = new ArrayList<>();
+        List<Etudiant> etudiantListCopy = new ArrayList<>();
+        ArrayList<Etudiantresponse> etudiantsResponse = new ArrayList<Etudiantresponse>();
 
-    // http://localhost:8080/download1?fileName=abc.zip
-    // Using ResponseEntity<InputStreamResource>
-//    @RequestMapping("/download1")
-//    public ResponseEntity<InputStreamResource> downloadFile1(
-//            @RequestParam(defaultValue = DEFAULT_FILE_NAME) String fileName) throws IOException {
-//
-//        MediaType mediaType = MediaTypeUtils.getMediaTypeForFileName(this.servletContext, fileName);
-//        System.out.println("fileName: " + fileName);
-//        System.out.println("mediaType: " + mediaType);
-//
-//        File file = new File(DIRECTORY + "/" + fileName);
-//        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-//
-//        return ResponseEntity.ok()
-//                // Content-Disposition
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
-//                // Content-Type
-//                .contentType(mediaType)
-//                // Contet-Length
-//                .contentLength(file.length()) //
-//                .body(resource);
-//    }
+        etudiantList = etudiantRepository.findAll();
+        for (Etudiant etudiant : etudiantList) {
+
+            if(findInEtudiants(etudiant.getNoms(),etudiantListCopy) != null){
+                continue;
+            }
+
+            for (Etudiant etudiant2 : etudiantList) {
+                if (etudiant.getNoms().equals( etudiant2.getNoms())) {
+                    CreditFieldresponse creditFieldresponse = new CreditFieldresponse(etudiant2.getAnnee_academique(),
+                            etudiant2.getNiveau_etude(), etudiant2.getCredit_acquis(), etudiant2.getMoyenne());
+                    Etudiantresponse etudiantResponse = new Etudiantresponse();
+                    etudiantResponse.setId(etudiant2.getId());
+                    etudiantResponse.setNoms(etudiant2.getNoms());
+                    etudiantResponse.setAxe(etudiant2.getAxe());
+                    etudiantResponse.setMatricule(etudiant2.getMatricule());
+//                    etudiantResponse.setMoyenne(etudiant2.getMoyenne());
+                    etudiantResponse.addArray_credits(creditFieldresponse);
+//                    System.out.println(etudiant.getNoms());
+
+
+                    if(etudiantsResponse.size() != 0){
+                        int index = indexOfEtudiant(etudiantsResponse, etudiantResponse);
+                        if ( index != -1) {
+                            System.out.println(index);
+                            etudiantsResponse.get(index).addArray_credits(creditFieldresponse);
+                        } else {
+                            etudiantsResponse.add(etudiantResponse);
+                        }
+                    }else{
+                        etudiantsResponse.add(etudiantResponse);
+                    }
+
+                    // responseObjects.add(responseObjects);
+                }
+            }
+
+
+            etudiantListCopy.add(etudiant);
+        }
+
+        Collections.sort(etudiantsResponse, Comparator.comparing(Etudiantresponse::getNoms)
+                .thenComparing(Etudiantresponse::getNoms)
+                .thenComparing(Etudiantresponse::getNoms));
+
+//        Collections.sort(etudiantsResponse, (etudiant1, etudiant2) -> etudiant1.getNoms() > etudiant2.getNoms());
+
+        return new ResponseEntity<>(etudiantsResponse, status);
+    }
+
+    @RequestMapping(value = "api/etudiantsByLevelNoSort", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<List<Etudiantresponse>> getInEtudiantByLevelNoSort() throws IOException {
+        HttpStatus status = HttpStatus.OK;
+        List<Etudiant> etudiantList = new ArrayList<>();
+        List<Etudiant> etudiantListCopy = new ArrayList<>();
+        ArrayList<Etudiantresponse> etudiantsResponse = new ArrayList<Etudiantresponse>();
+
+        etudiantList = etudiantRepository.findAll();
+        for (Etudiant etudiant : etudiantList) {
+
+            if(findInEtudiants(etudiant.getNoms(),etudiantListCopy) != null){
+                continue;
+            }
+
+            for (Etudiant etudiant2 : etudiantList) {
+                if (etudiant.getNoms().equals( etudiant2.getNoms())) {
+                    CreditFieldresponse creditFieldresponse = new CreditFieldresponse(etudiant2.getAnnee_academique(),
+                            etudiant2.getNiveau_etude(), etudiant2.getCredit_acquis(), etudiant2.getMoyenne());
+                    Etudiantresponse etudiantResponse = new Etudiantresponse();
+                    etudiantResponse.setId(etudiant2.getId());
+                    etudiantResponse.setNoms(etudiant2.getNoms());
+                    etudiantResponse.setAxe(etudiant2.getAxe());
+                    etudiantResponse.setMatricule(etudiant2.getMatricule());
+                    etudiantResponse.setMoyenne(etudiant2.getMoyenne());
+                    etudiantResponse.addArray_credits(creditFieldresponse);
+//                    System.out.println(etudiant.getNoms());
+
+
+                    if(etudiantsResponse.size() != 0){
+                        int index = indexOfEtudiant(etudiantsResponse, etudiantResponse);
+                        if ( index != -1) {
+                            System.out.println(index);
+                            etudiantsResponse.get(index).addArray_credits(creditFieldresponse);
+                        } else {
+                            etudiantsResponse.add(etudiantResponse);
+                        }
+                    }else{
+                        etudiantsResponse.add(etudiantResponse);
+                    }
+
+                    // responseObjects.add(responseObjects);
+                }
+            }
+
+
+            etudiantListCopy.add(etudiant);
+        }
+        return new ResponseEntity<>(etudiantsResponse, status);
+    }
+
+    int indexOfEtudiant(ArrayList<Etudiantresponse> etudiantsResponse, Etudiantresponse etudiantResponse) {
+        for (int i = 0; i < etudiantsResponse.size(); i++) {
+            if (etudiantsResponse.get(i).getNoms().equals( etudiantResponse.getNoms())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+    public Etudiant findInEtudiants(
+            String noms, List<Etudiant> etudiants) {
+        for (Etudiant etudiant : etudiants) {
+            if (etudiant.getNoms().equals(noms)) {
+                return etudiant;
+            }
+        }
+        return null;
+    }
+
+
+    @RequestMapping(value = "api/etudiant_annee", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<List<Etudiant>> getAnnee() throws IOException {
+
+        HttpStatus status = HttpStatus.OK;
+        return new ResponseEntity<>(etudiantRepository.findByAnnee(), status);
+    }
+
+
+    @RequestMapping(value = "api/etudiant_niveau", method = RequestMethod.GET)
+    @CrossOrigin("*")
+    public ResponseEntity<List<Etudiant>> getNiveau() throws IOException {
+
+        HttpStatus status = HttpStatus.OK;
+        return new ResponseEntity<>(etudiantRepository.findByNiveau(), status);
+    }
+
 
  }
 
